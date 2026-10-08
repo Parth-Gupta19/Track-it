@@ -1,0 +1,85 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User profile information",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["uid", "email"]
+    },
+    "Activity": {
+      "title": "Activity",
+      "description": "Activity domain container",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "category": { "type": "string" },
+        "icon": { "type": "string" },
+        "color": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "userId", "name"]
+    },
+    "MeasurementTool": {
+      "title": "MeasurementTool",
+      "description": "Measurement tool associated with an activity",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "activityId": { "type": "string" },
+        "name": { "type": "string" },
+        "purpose": { "type": "string" },
+        "type": { "type": "string", "enum": ["bar_chart", "pie_chart", "line_chart", "counter"] },
+        "config": { "type": "object" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "userId", "activityId", "name", "type"]
+    },
+    "LogEntry": {
+      "title": "LogEntry",
+      "description": "Strict time-stamped metric record entry",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "activityId": { "type": "string" },
+        "toolId": { "type": "string" },
+        "date": { "type": "string" },
+        "time": { "type": "string" },
+        "timestamp": { "type": "number" },
+        "values": { "type": "object" },
+        "totalValue": { "type": "number" },
+        "notes": { "type": "string" }
+      },
+      "required": ["id", "userId", "activityId", "toolId", "date", "totalValue"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "User profile collection"
+    },
+    "/users/{userId}/activities/{activityId}": {
+      "schema": "Activity",
+      "description": "User activity documents"
+    },
+    "/users/{userId}/tools/{toolId}": {
+      "schema": "MeasurementTool",
+      "description": "User measurement tools"
+    },
+    "/users/{userId}/entries/{entryId}": {
+      "schema": "LogEntry",
+      "description": "User logged entries"
+    }
+  }
+}

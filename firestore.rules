@@ -1,0 +1,69 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128;
+    }
+
+    function isValidActivity(data) {
+      return data.id is string && data.id.size() <= 128 &&
+             data.userId is string && data.userId == request.auth.uid &&
+             data.name is string && data.name.size() > 0 && data.name.size() <= 200;
+    }
+
+    function isValidTool(data) {
+      return data.id is string && data.id.size() <= 128 &&
+             data.userId is string && data.userId == request.auth.uid &&
+             data.activityId is string && data.activityId.size() <= 128 &&
+             data.name is string && data.name.size() > 0 && data.name.size() <= 200 &&
+             data.type is string && (data.type in ['bar_chart', 'pie_chart', 'line_chart', 'counter']);
+    }
+
+    function isValidEntry(data) {
+      return data.id is string && data.id.size() <= 128 &&
+             data.userId is string && data.userId == request.auth.uid &&
+             data.activityId is string && data.activityId.size() <= 128 &&
+             data.toolId is string && data.toolId.size() <= 128 &&
+             data.date is string && data.date.size() <= 32 &&
+             data.totalValue is number;
+    }
+
+    // Health check ping for initial app boot connection test
+    match /test/connection {
+      allow read: if true;
+    }
+
+    match /users/{userId} {
+      allow read, write: if isOwner(userId) && isValidId(userId);
+
+      match /activities/{activityId} {
+        allow read: if isOwner(userId);
+        allow write: if isOwner(userId) && isValidId(activityId) && (request.method == 'delete' || isValidActivity(request.resource.data));
+      }
+
+      match /tools/{toolId} {
+        allow read: if isOwner(userId);
+        allow write: if isOwner(userId) && isValidId(toolId) && (request.method == 'delete' || isValidTool(request.resource.data));
+      }
+
+      match /entries/{entryId} {
+        allow read: if isOwner(userId);
+        allow write: if isOwner(userId) && isValidId(entryId) && (request.method == 'delete' || isValidEntry(request.resource.data));
+      }
+    }
+  }
+}

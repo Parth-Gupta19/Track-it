@@ -1,0 +1,6 @@
+{
+  "name": "Trackit - Activity & Visual Metric Tracker",
+  "description": "Precision activity tracking system with customizable measurement tools, time-filtered analytics, report entry, and Gemini AI agent.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
